@@ -1,0 +1,4 @@
+.idea/**
+# Project exclude paths
+/boot2-security5/target/
+/boot3-security6/target/
