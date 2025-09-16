@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 请求授权
                 .authorizeRequests()
                 // 可匿名访问
-                .antMatchers("/user/login").anonymous()
+                .antMatchers("/user/login").permitAll()
                 .antMatchers("/doc.html").anonymous()
                 .antMatchers("/webjars/**").anonymous()
                 .antMatchers("/v2/**").anonymous()

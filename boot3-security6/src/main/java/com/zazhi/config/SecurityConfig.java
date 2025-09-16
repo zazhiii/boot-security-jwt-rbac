@@ -65,7 +65,6 @@ public class SecurityConfig {
                                 .requestMatchers("/api/login").permitAll()
                                 // knife4j -> 可匿名访问
                                 .requestMatchers("/doc.html").anonymous()
-                                .requestMatchers("/doc.html").anonymous()
                                 .requestMatchers("/webjars/**").anonymous()
                                 .requestMatchers("/v3/**").anonymous()
                                 .requestMatchers("/swagger-resources/**").anonymous()

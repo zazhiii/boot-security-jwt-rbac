@@ -1,5 +1,6 @@
 package com.zazhi.service.impl;
 
+import com.zazhi.constant.RedisKey;
 import com.zazhi.pojo.LoginDTO;
 import com.zazhi.pojo.LoginUser;
 import com.zazhi.pojo.User;
@@ -52,7 +53,7 @@ public class LoginServiceImpl implements LoginService {
         String jwtToken = JwtUtil.genToken(map);
 
         // 把完整的用户信息存入redis，userid作为key
-        redisUtil.setObject("login:" + user.getId(), loginUser);
+        redisUtil.setObject(RedisKey.format(RedisKey.LOGIN, user.getId()), loginUser);
 
         return jwtToken;
     }
@@ -61,7 +62,7 @@ public class LoginServiceImpl implements LoginService {
     public void logout() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         LoginUser loginUser = (LoginUser) auth.getPrincipal();
-        String userId = loginUser.getUser().getId();
-        redisUtil.delete("login:" + userId);
+        Integer userId = loginUser.getUser().getId();
+        redisUtil.delete(RedisKey.format(RedisKey.LOGIN, userId));
     }
 }
