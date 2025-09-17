@@ -2,7 +2,7 @@ package com.zazhi.service.impl;
 
 import com.zazhi.constant.RedisKey;
 import com.zazhi.pojo.LoginDTO;
-import com.zazhi.pojo.LoginUser;
+import com.zazhi.pojo.LoginUserDetails;
 import com.zazhi.pojo.User;
 import com.zazhi.service.LoginService;
 import com.zazhi.utils.JwtUtil;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -43,8 +42,8 @@ public class LoginServiceImpl implements LoginService {
             throw new RuntimeException("用户名或密码错误");
         }
         // 认证成功，使用userid生成jwt，返回给前端
-        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
-        User user = loginUser.getUser();
+        LoginUserDetails loginUserDetails = (LoginUserDetails) authentication.getPrincipal();
+        User user = loginUserDetails.getUser();
 
         // 生成jwt
         Map<String, Object> map = new HashMap<>(2);
@@ -53,7 +52,7 @@ public class LoginServiceImpl implements LoginService {
         String jwtToken = JwtUtil.genToken(map);
 
         // 把完整的用户信息存入redis，userid作为key
-        redisUtil.setObject(RedisKey.format(RedisKey.LOGIN, user.getId()), loginUser);
+        redisUtil.setObject(RedisKey.format(RedisKey.LOGIN, user.getId()), loginUserDetails);
 
         return jwtToken;
     }
@@ -61,8 +60,8 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void logout() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        LoginUser loginUser = (LoginUser) auth.getPrincipal();
-        Integer userId = loginUser.getUser().getId();
+        LoginUserDetails loginUserDetails = (LoginUserDetails) auth.getPrincipal();
+        Integer userId = loginUserDetails.getUser().getId();
         redisUtil.delete(RedisKey.format(RedisKey.LOGIN, userId));
     }
 }

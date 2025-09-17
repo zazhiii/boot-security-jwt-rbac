@@ -1,6 +1,7 @@
 package com.zazhi.filter;
 
-import com.zazhi.pojo.LoginUser;
+import com.zazhi.constant.RedisKey;
+import com.zazhi.pojo.LoginUserDetails;
 import com.zazhi.utils.JwtUtil;
 import com.zazhi.utils.RedisUtil;
 import lombok.RequiredArgsConstructor;
@@ -43,16 +44,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             throw new RuntimeException("token非法");
         }
         // 从redis中获取信息
-        LoginUser loginUser = redisUtil.getObject("login:" + map.get("userId"), LoginUser.class);
-        if(loginUser == null){
+        String key = RedisKey.format(RedisKey.LOGIN, map.get("userId"));
+        LoginUserDetails loginUserDetails = redisUtil.getObject(key, LoginUserDetails.class);
+        if(loginUserDetails == null){
             throw new RuntimeException("用户未登录");
         }
-        // TODO 设置权限信息
+        // 封装token，存入上下文; 这种方式创建的token是认证通过的
         UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(loginUser, null, null);
-
+                new UsernamePasswordAuthenticationToken(loginUserDetails, null, loginUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(token);
-        // 继续
         filterChain.doFilter(request, response);
     }
 }

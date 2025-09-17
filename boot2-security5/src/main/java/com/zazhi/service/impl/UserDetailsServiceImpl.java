@@ -2,15 +2,14 @@ package com.zazhi.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zazhi.mapper.UserMapper;
-import com.zazhi.pojo.LoginUser;
+import com.zazhi.pojo.LoginUserDetails;
+import com.zazhi.pojo.RoleAndPermission;
 import com.zazhi.pojo.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 /**
  *
@@ -24,13 +23,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
+        // 查询用户基本信息
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, username);
         User user = userMapper.selectOne(queryWrapper);
         if(user == null){
             throw new UsernameNotFoundException("用户不存在");
         }
-        return new LoginUser(user);
+        // 获取用户的角色和权限
+        RoleAndPermission rp = userMapper.getRolesAndPermissions(user.getId());
+        return new LoginUserDetails(user, rp.getRoles(), rp.getPermissions(), null);
     }
 }

@@ -29,6 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if(user == null){
             throw new UsernameNotFoundException("用户不存在");
         }
+        // 获取用户的角色和权限
         RoleAndPermission rp = userMapper.getRolesAndPermissions(user.getId());
         return new LoginUserDetails(user, rp.getRoles(), rp.getPermissions());
     }

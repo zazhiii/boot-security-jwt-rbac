@@ -1,6 +1,7 @@
 package com.zazhi.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +18,7 @@ public class HelloController {
     }
 
     @GetMapping("/a")
+    @PreAuthorize("hasAuthority('ROLE-A')")
     public ResponseEntity<String> onlyRoleA() {
         return ResponseEntity.ok("ROLE-A访问成功");
     }
