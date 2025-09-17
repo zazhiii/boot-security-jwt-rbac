@@ -11,8 +11,8 @@ public interface LoginService {
     /**
      * 用户登录
      *
-     * @param loginDTO
-     * @return
+     * @param loginDTO 登录信息
+     * @return token
      */
     String login(LoginDTO loginDTO);
 

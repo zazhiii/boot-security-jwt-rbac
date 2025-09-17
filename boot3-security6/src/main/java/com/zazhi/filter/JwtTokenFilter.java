@@ -1,7 +1,6 @@
 package com.zazhi.filter;
 
 import com.zazhi.constant.RedisKey;
-import com.zazhi.pojo.LoginUserDetails;
 import com.zazhi.utils.JwtUtil;
 import com.zazhi.utils.RedisUtil;
 import jakarta.servlet.FilterChain;
@@ -11,11 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -32,6 +33,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 获取token
         String jwtToken = request.getHeader("Authorization");
+        // 如果没有token，直接放行
         if(!StringUtils.hasText(jwtToken)){
             filterChain.doFilter(request, response);
             return;
@@ -41,21 +43,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         try {
             map = JwtUtil.parseToken(jwtToken);
         } catch (Exception e) {
-            throw new RuntimeException("token非法");
+            throw new RuntimeException("token无效");
         }
-        // 从redis中获取信息
-        String key = RedisKey.format(RedisKey.LOGIN, map.get("userId"));
-        LoginUserDetails loginUserDetails = redisUtil.getObject(key, LoginUserDetails.class);
-        if(loginUserDetails == null){
+        Integer userId = (Integer) map.get("userId");
+
+        // 校验redis中是否存在
+        String key = RedisKey.format(RedisKey.LOGIN, userId);
+        UserDetails userDetails = redisUtil.getObject(key, UserDetails.class);
+        if(userDetails == null){
             throw new RuntimeException("用户未登录");
         }
 
         // 这样创建出来的token是已认证状态
-        // TODO 设置权限信息
         UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(loginUserDetails, null, null);
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(token);
+
         // 继续
         filterChain.doFilter(request, response);
     }

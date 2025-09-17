@@ -8,6 +8,12 @@ package com.zazhi.constant;
 public class RedisKey {
     public static final String LOGIN = "login:%s";
 
+    public static final String ROLE = "role:%s";
+
+    public static final String PERMISSION = "permission:%s";
+
+    public static final String AUTHORITIES = "authorities:%s";
+
     public static String format(String format, Object... args) {
         return String.format(format, args);
     }

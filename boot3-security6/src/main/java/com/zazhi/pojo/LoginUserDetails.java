@@ -4,10 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -21,9 +24,20 @@ public class LoginUserDetails implements UserDetails {
 
     private User user;
 
+    private Set<String> roles;
+
+    private Set<String> permissions;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        roles.forEach(
+                role -> grantedAuthorities.add(new SimpleGrantedAuthority(role))
+        );
+        permissions.forEach(
+                permission -> grantedAuthorities.add(new SimpleGrantedAuthority(permission))
+        );
+        return grantedAuthorities;
     }
 
     @Override

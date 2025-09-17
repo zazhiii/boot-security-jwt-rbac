@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @TableName("user")
 public class User {
-    private String id;
+    private Integer id;
     private String username;
     private String password;
 //    private LocalDateTime createTime;

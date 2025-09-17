@@ -44,6 +44,10 @@ public class RedisUtil {
         redisTemplate.opsForValue().set(key, value, timeout, unit);
     }
 
+    public void set(String key, String value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
+
     /**
      * 获取指定 key 的值
      *

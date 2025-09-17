@@ -17,8 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  *
@@ -45,16 +43,14 @@ public class LoginServiceImpl implements LoginService {
         }
         // 认证成功，使用userid生成jwt，返回给前端
         LoginUserDetails loginUserDetails = (LoginUserDetails) authentication.getPrincipal();
-        User user = loginUserDetails.getUser();
 
         // 生成jwt
         Map<String, Object> map = new HashMap<>(2);
-        map.put("userId", user.getUsername());
-        map.put("username", user.getUsername());
+        map.put("userId", loginUserDetails.getUser().getId());
         String jwtToken = JwtUtil.genToken(map);
 
         // 把完整的用户信息存入redis，userId作为key
-        String key = RedisKey.format(RedisKey.LOGIN, user.getId());
+        String key = RedisKey.format(RedisKey.LOGIN, loginUserDetails);
         redisUtil.setObject(key, loginUserDetails);
 
         return jwtToken;
@@ -64,7 +60,7 @@ public class LoginServiceImpl implements LoginService {
     public void logout() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         LoginUserDetails loginUserDetails = (LoginUserDetails) auth.getPrincipal();
-        String userId = loginUserDetails.getUser().getId();
-        redisUtil.delete("login:" + userId);
+        Integer userId = loginUserDetails.getUser().getId();
+        redisUtil.delete(RedisKey.format(RedisKey.LOGIN, userId));
     }
 }
