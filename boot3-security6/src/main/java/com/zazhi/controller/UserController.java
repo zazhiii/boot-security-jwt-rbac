@@ -6,6 +6,9 @@ import com.zazhi.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author zazhi
+ */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
